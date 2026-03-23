@@ -1,12 +1,10 @@
-import { Request, Response } from "express";
-import bcrypt from "bcrypt";
-import { PrismaClient } from "@prisma/client";
-import { generateTokens } from "../utils/jwt.js";
+import express from 'express';
+import bcrypt from 'bcrypt';
 import jwt from "jsonwebtoken";
+import { generateTokens } from "../utils/jwt.js";
+import prisma from "../config/db.js";
 
-const prisma = new PrismaClient();
-
-export const register = async (req: Request, res: Response) => {
+export const register = async (req: express.Request, res: express.Response) => {
     const { email, password, name } = req.body;
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -29,7 +27,7 @@ export const register = async (req: Request, res: Response) => {
     }
 }
 
-export const login = async (req: Request, res: Response) => {
+export const login = async (req: express.Request, res: express.Response) => {
     const { email, password } = req.body;
     try {
         const user = await prisma.user.findUnique({ where: { email } });
@@ -53,7 +51,7 @@ export const login = async (req: Request, res: Response) => {
     }
 };
 
-export const refresh = async (req: Request, res: Response) => {
+export const refresh = async (req: express.Request, res: express.Response) => {
     const refreshToken = req.cookies.refreshToken;
     if (!refreshToken) return res.status(401).json({ error: "No refresh token" });
 
@@ -72,7 +70,7 @@ export const refresh = async (req: Request, res: Response) => {
     }
     };
 
-export const logout = (req: Request, res: Response) => {
+export const logout = (req: express.Request, res: express.Response) => {
     res.clearCookie('refreshToken');
     res.status(200).json({ message: "Logged out successfully" });
 };
