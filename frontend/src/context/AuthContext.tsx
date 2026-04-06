@@ -1,8 +1,14 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import api from '../api/axios';
 
+interface User {
+    id: string;
+    name: string;
+    email: string;
+}
+
 interface AuthContextType {
-    user: any;
+    user: User | null;
     login: (data: any) => void;
     logout: () => void;
     loading: boolean;
@@ -11,7 +17,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-    const [user, setUser] = useState(null);
+    const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -20,8 +26,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         try {
             const res = await api.get('/auth/refresh');
             sessionStorage.setItem('token', res.data.accessToken);
+            console.log(res);
             // Fetch user profile or decode token here
-            setUser({ authenticated: true }); 
+            setUser({ id: 'anonymous', name: 'Anonymous', email: 'anonymous@example.com' }); 
         } catch {
             setUser(null);
         } finally {
